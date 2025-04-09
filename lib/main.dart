@@ -89,3 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     String title = notification?.title ?? "Notification";
     String body = notification?.body ?? "";
+
+    setState(() {
+      _notificationHistory.add("[$type] $body");
+    });
