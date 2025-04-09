@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = 
     FlutterLocalNotificationsPlugin();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -14,45 +14,46 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
+  // Handle background messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // Local Notification setup for displaying notifications when the app is in the foreground
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
-
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-  runApp(MyApp());
+  runApp(MessagingApp());
 }
 
-class MyApp extends StatelessWidget {
+class MessagingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FCM Cloud Messaging App',
+      title: 'FCM Messaging Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MessagingHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MessagingHomePage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MessagingHomePageState createState() => _MessagingHomePageState();
 }
 
-
-class _MyHomePageState extends State<MyHomePage> {
+class _MessagingHomePageState extends State<MessagingHomePage> {
   String? _token;
   List<String> _notificationHistory = [];
 
@@ -64,19 +65,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _initFCM() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission();
 
+    // Request permission on iOS and web for notifications
+    NotificationSettings settings = await messaging.requestPermission();
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print("Permission granted!");
+    } else {
+      print("Permission denied!");
+    }
+
+    // Get the FCM token
     String? token = await messaging.getToken();
     setState(() {
       _token = token;
     });
     print("FCM Token: $_token");
 
-     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Foreground message received: ${message.notification?.body}');
       _handleMessage(message);
     });
 
+    // Handle message opened when app is in the background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('Notification clicked!');
     });
@@ -90,10 +101,12 @@ class _MyHomePageState extends State<MyHomePage> {
     String title = notification?.title ?? "Notification";
     String body = notification?.body ?? "";
 
+    // Save to notification history
     setState(() {
       _notificationHistory.add("[$type] $body");
     });
 
+    // Local Notification for displaying notifications in the app
     AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'default_channel',
       'Default Channel',
@@ -116,7 +129,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body,
       platformDetails,
     );
-     showDialog(
+
+    // Show dialog as well
+    showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(title),
