@@ -93,3 +93,26 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _notificationHistory.add("[$type] $body");
     });
+
+    AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'default_channel',
+      'Default Channel',
+      channelDescription: 'Used for general notifications',
+      importance: type == 'important' ? Importance.max : Importance.defaultImportance,
+      priority: type == 'important' ? Priority.high : Priority.defaultPriority,
+      playSound: true,
+      enableVibration: type == 'important',
+      sound: RawResourceAndroidNotificationSound(
+          type == 'important' ? 'alert' : 'default'),
+    );
+
+    NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformDetails,
+    );
