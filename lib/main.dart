@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -63,7 +63,7 @@ class _MessagingHomePageState extends State<MessagingHomePage> {
     _initFCM();
   }
 
-  void _initFCM() async {
+  Future<void> _initFCM() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
     // Request permission on iOS and web for notifications
