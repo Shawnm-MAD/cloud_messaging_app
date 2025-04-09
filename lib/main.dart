@@ -116,3 +116,48 @@ class _MyHomePageState extends State<MyHomePage> {
       body,
       platformDetails,
     );
+     showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("FCM Messaging"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SelectableText("Your FCM Token:\n$_token"),
+            const SizedBox(height: 20),
+            Text(
+              "Notification History:",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _notificationHistory.length,
+                itemBuilder: (context, index) => ListTile(
+                  title: Text(_notificationHistory[index]),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
