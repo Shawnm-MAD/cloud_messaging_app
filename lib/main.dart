@@ -64,6 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _initFCM() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission();
+
+    String? token = await messaging.getToken();
+    setState(() {
+      _token = token;
+    });
+    print("FCM Token: $_token");
+
 
   void _incrementCounter() {
     setState(() {
